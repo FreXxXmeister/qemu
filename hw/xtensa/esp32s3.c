@@ -69,6 +69,7 @@
 
 #include "hw/misc/esp32c3_jtag.h"
 #include "hw/display/esp_rgb.h"
+#include "hw/input/esp_input.h"
 
 #define TYPE_ESP32S3_SOC "xtensa.esp32s3"
 #define ESP32S3_SOC(obj) OBJECT_CHECK(Esp32s3SocState, (obj), TYPE_ESP32S3_SOC)
@@ -150,6 +151,7 @@ typedef struct Esp32s3SocState {
 
     ESP32C3UsbJtagState jtag;
     ESPRgbState rgb;
+    ESPInputState input;
 
     MemoryRegion iomem;
     DWCSDMMCState sdmmc;
@@ -773,6 +775,8 @@ static void esp32s3_machine_init(MachineState *machine)
     object_initialize_child(OBJECT(ss), "timg1", &ss->timg[1], TYPE_ESP32S3_TIMG);
     object_initialize_child(OBJECT(ss), "systimer", &ss->systimer, TYPE_ESP32S3_SYSTIMER);
     object_initialize_child(OBJECT(ss), "rgb", &ss->rgb, TYPE_ESP_RGB);
+    object_initialize_child(OBJECT(ss), "input", &ss->input,
+                            TYPE_ESP_INPUT);
 
     DeviceState* intmatrix_dev = DEVICE(&ss->intmatrix);
     {
@@ -997,6 +1001,15 @@ static void esp32s3_machine_init(MachineState *machine)
         MemoryRegion *mr = sysbus_mmio_get_region(SYS_BUS_DEVICE(&ss->rgb), 0);
         memory_region_add_subregion_overlap(sys_mem, DR_REG_FRAMEBUF_BASE, mr, 0);
         memory_region_add_subregion_overlap(sys_mem, esp32s3_memmap[ESP32S3_MEMREGION_FRAMEBUF].base, &ss->rgb.vram, 0);
+    }
+
+    /* Input device, above the catch-all esp32s3.iomem region (priority 0) */
+    {
+        sysbus_realize(SYS_BUS_DEVICE(&ss->input), &error_fatal);
+        MemoryRegion *mr =
+            sysbus_mmio_get_region(SYS_BUS_DEVICE(&ss->input), 0);
+        memory_region_add_subregion_overlap(sys_mem, DR_REG_ESP_INPUT_BASE,
+                                            mr, 1);
     }
 
     esp32s3_soc_add_unimp_device(sys_mem, "esp32s3.rmt", DR_REG_RMT_BASE, 0x1000);

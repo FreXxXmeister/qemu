@@ -12,6 +12,15 @@
 
 #define DR_REG_FRAMEBUF_BASE                    0x21000000
 
+/*
+ * Polled keyboard and pointer input device (hw/input/esp_input.c). It is
+ * not an ESP32-S3 peripheral: the address lies in the range
+ * 0x60042000 - 0x6007FFFF, between LCD_CAM and USB OTG, where the chip has
+ * none, so that firmware on a QEMU without this device reads 0 from the
+ * catch-all I/O region.
+ */
+#define DR_REG_ESP_INPUT_BASE                   0x60070000
+
 #define DR_REG_UART_BASE                        0x60000000
 #define DR_REG_SPI1_BASE                        0x60002000
 #define DR_REG_SPI0_BASE                        0x60003000
