@@ -276,6 +276,7 @@ qtests_xtensa = \
   (config_all_devices.has_key('CONFIG_XTENSA_ESP32S3') ? ['esp-periph-test'] : []) + \
   (config_all_devices.has_key('CONFIG_XTENSA_ESP32') ? ['esp32-intmatrix-test'] : []) + \
   (config_all_devices.has_key('CONFIG_XTENSA_ESP32S3') ? ['esp32s3-intmatrix-test'] : []) + \
+  (config_all_devices.has_key('CONFIG_XTENSA_ESP32S3') ? ['esp32s3-input-test'] : []) + \
   (config_all_devices.has_key('CONFIG_XTENSA_ESP32S3') ? ['esp-spi-test'] : [])
 
 qtests_riscv64 = \
