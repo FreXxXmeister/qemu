@@ -1,0 +1,42 @@
+name: 'qtest-esp32s3-input'
+
+on: [push]
+
+jobs:
+  Qtest:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update -y -q
+          sudo apt-get install -y -q --no-install-recommends \
+            build-essential git libgcrypt20-dev libglib2.0-dev \
+            libpixman-1-dev libslirp-dev ninja-build python3-pip \
+            python3-tomli python3-venv zlib1g-dev
+
+      - name: Configure
+        run: |
+          ./configure \
+            --enable-gcrypt \
+            --enable-pixman \
+            --enable-slirp \
+            --extra-cflags=-Werror \
+            --target-list=xtensa-softmmu \
+            --without-default-features \
+          || { cat build/meson-logs/meson-log.txt; false; }
+
+      - name: Build
+        run: |
+          ninja -C build qemu-system-xtensa \
+            tests/qtest/esp32s3-input-test \
+            tests/qtest/esp32s3-intmatrix-test
+
+      - name: Run qtests
+        working-directory: build
+        env:
+          QTEST_QEMU_BINARY: ./qemu-system-xtensa
+        run: |
+          ./tests/qtest/esp32s3-intmatrix-test --tap -k
+          ./tests/qtest/esp32s3-input-test --tap -k
