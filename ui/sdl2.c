@@ -610,6 +610,7 @@ static void handle_windowevent(SDL_Event *ev)
         if (gui_grab && !gui_fullscreen) {
             sdl_grab_end(scon);
         }
+        sdl2_release_modifiers(scon);
         break;
     case SDL_WINDOWEVENT_RESTORED:
         update_displaychangelistener(&scon->dcl, GUI_REFRESH_INTERVAL_DEFAULT);
